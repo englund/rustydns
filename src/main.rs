@@ -8,8 +8,6 @@ async fn main() {
     let ydns_username = read_env_or_panic("YDNS_USERNAME");
     let ydns_password = read_env_or_panic("YDNS_PASSWORD");
 
-    println!("{ydns_username}:{ydns_password}");
-
     let current_ip = get_current_ip().await.unwrap();
     println!("Current IP: {current_ip}");
 
