@@ -1,12 +1,12 @@
 use reqwest;
-use std::env;
+use std::{env, process::exit};
 
 const YDNS_BASE_URL: &str = "https://ydns.io/api/v1";
 
 #[tokio::main]
 async fn main() {
-    let ydns_username = read_env_or_panic("YDNS_USERNAME");
-    let ydns_password = read_env_or_panic("YDNS_PASSWORD");
+    let ydns_username = read_env_or_exit("YDNS_USERNAME");
+    let ydns_password = read_env_or_exit("YDNS_PASSWORD");
 
     let current_ip = get_current_ip().await.unwrap();
     println!("Current IP: {current_ip}");
@@ -25,10 +25,13 @@ async fn main() {
     }
 }
 
-fn read_env_or_panic(name: &str) -> String {
+fn read_env_or_exit(name: &str) -> String {
     match env::var(name) {
         Ok(env) => env,
-        Err(_) => panic!("Environment variable {name} doesn't exist"),
+        Err(_) => {
+            println!("Environment variable {name} doesn't exist");
+            exit(1)
+        }
     }
 }
 
