@@ -8,19 +8,30 @@ async fn main() {
     let ydns_username = read_env_or_exit("YDNS_USERNAME");
     let ydns_password = read_env_or_exit("YDNS_PASSWORD");
 
-    let current_ip = get_current_ip().await.unwrap();
+    let current_ip = match get_current_ip().await {
+        Ok(r) => r,
+        Err(_) => {
+            println!("Couldn't find current IP");
+            exit(1)
+        }
+    };
     println!("Current IP: {current_ip}");
 
     let args = env::args();
     for arg in args.skip(1) {
         println!("Host: {arg}");
-        let response = update_host(&ydns_username, &ydns_password, &arg, &current_ip).await;
-        match response {
-            Ok(response) => {
-                let result = response.text().await.unwrap();
-                println!("Result: {result}")
+        match update_host(&ydns_username, &ydns_password, &arg, &current_ip).await {
+            Ok(response) => match response.text().await {
+                Ok(r) => println!("Result: {}", r),
+                Err(e) => {
+                    println!("Parse response: {}", e);
+                    exit(1)
+                }
+            },
+            Err(_) => {
+                println!("Something went terrible wrong");
+                exit(1)
             }
-            Err(_) => panic!("Something went terrible wrong"),
         }
     }
 }
@@ -29,7 +40,7 @@ fn read_env_or_exit(name: &str) -> String {
     match env::var(name) {
         Ok(env) => env,
         Err(_) => {
-            println!("Environment variable {name} doesn't exist");
+            println!("Environment variable {} doesn't exist", name);
             exit(1)
         }
     }
@@ -37,8 +48,7 @@ fn read_env_or_exit(name: &str) -> String {
 
 async fn get_current_ip() -> Result<String, reqwest::Error> {
     reqwest::get(format!("{YDNS_BASE_URL}/ip"))
-        .await
-        .unwrap()
+        .await?
         .text()
         .await
 }
