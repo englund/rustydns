@@ -24,7 +24,7 @@ async fn main() {
             Ok(response) => match response.text().await {
                 Ok(r) => println!("Result: {}", r),
                 Err(e) => {
-                    println!("Parse response: {}", e);
+                    println!("Could not parse response: {}", e);
                     exit(1)
                 }
             },
