@@ -28,8 +28,8 @@ async fn main() {
                     exit(1)
                 }
             },
-            Err(_) => {
-                println!("Something went terrible wrong");
+            Err(e) => {
+                println!("Something went terrible wrong! Error: {}", e);
                 exit(1)
             }
         }
