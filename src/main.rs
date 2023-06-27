@@ -54,10 +54,10 @@ async fn get_current_ip() -> Result<String, reqwest::Error> {
 }
 
 async fn update_host(
-    username: &String,
-    password: &String,
-    host: &String,
-    ip: &String,
+    username: &str,
+    password: &str,
+    host: &str,
+    ip: &str,
 ) -> Result<reqwest::Response, reqwest::Error> {
     let client = reqwest::Client::new();
     client
