@@ -1,10 +1,19 @@
+use clap::Parser;
 use reqwest;
 use std::{env, process::exit};
 
 const YDNS_BASE_URL: &str = "https://ydns.io/api/v1";
 
+#[derive(Parser, Debug)]
+struct Args {
+    #[arg(required = true, long, short = 'H')]
+    host: Vec<String>,
+}
+
 #[tokio::main]
 async fn main() {
+    let args = Args::parse();
+
     let ydns_username = read_env_or_exit("YDNS_USERNAME");
     let ydns_password = read_env_or_exit("YDNS_PASSWORD");
 
@@ -17,8 +26,7 @@ async fn main() {
     };
     println!("Current IP: {current_ip}");
 
-    let args = env::args();
-    for arg in args.skip(1) {
+    for arg in args.host.iter() {
         println!("Host: {arg}");
         match update_host(&ydns_username, &ydns_password, &arg, &current_ip).await {
             Ok(response) => match response.text().await {
