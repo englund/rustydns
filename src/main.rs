@@ -43,6 +43,16 @@ async fn main() {
         }
     };
 
+    if config.username.is_empty() {
+        println!("The username needs to be configured");
+        exit(1)
+    }
+
+    if config.password.is_empty() {
+        println!("The password needs to be configured");
+        exit(1)
+    }
+
     let current_ip = match get_current_ip().await {
         Ok(r) => r,
         Err(_) => {
