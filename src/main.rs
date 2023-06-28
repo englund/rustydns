@@ -69,9 +69,14 @@ async fn main() {
         info!("Host: {arg}");
         match update_host(&config.username, &config.password, &arg, &current_ip).await {
             Ok(response) => match response.text().await {
-                Ok(r) => info!("Result: {}", r),
+                Ok(r) => {
+                    if !r.contains("ok") {
+                        error!("Something went wrong updating the host: {}", r);
+                        exit(1)
+                    }
+                }
                 Err(e) => {
-                    error!("Could not parse response: {}", e);
+                    error!("Couldn't parse response: {}", e);
                     exit(1)
                 }
             },
