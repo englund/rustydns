@@ -1,4 +1,5 @@
 use clap::Parser;
+use log::{error, info};
 use reqwest;
 use serde::{Deserialize, Serialize};
 use std::{fs, process::exit};
@@ -22,12 +23,14 @@ struct Args {
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
+
     let args = Args::parse();
 
     let file_content = match fs::read_to_string(&args.file) {
         Ok(f) => f,
         Err(e) => {
-            println!("Couldn't read the configuration file {}: {}", &args.file, e);
+            error!("Couldn't read the configuration file {}: {}", &args.file, e);
             exit(1)
         }
     };
@@ -35,7 +38,7 @@ async fn main() {
     let config = match serde_yaml::from_str::<Config>(&file_content) {
         Ok(c) => c,
         Err(e) => {
-            println!(
+            error!(
                 "Couldn't parse the configuration file {}: {}",
                 &args.file, e
             );
@@ -44,36 +47,36 @@ async fn main() {
     };
 
     if config.username.is_empty() {
-        println!("The username needs to be configured");
+        error!("The username needs to be configured");
         exit(1)
     }
 
     if config.password.is_empty() {
-        println!("The password needs to be configured");
+        error!("The password needs to be configured");
         exit(1)
     }
 
     let current_ip = match get_current_ip().await {
         Ok(r) => r,
         Err(_) => {
-            println!("Couldn't find current IP");
+            error!("Couldn't find current IP");
             exit(1)
         }
     };
     println!("Current IP: {current_ip}");
 
     for arg in args.host.iter() {
-        println!("Host: {arg}");
+        info!("Host: {arg}");
         match update_host(&config.username, &config.password, &arg, &current_ip).await {
             Ok(response) => match response.text().await {
-                Ok(r) => println!("Result: {}", r),
+                Ok(r) => info!("Result: {}", r),
                 Err(e) => {
-                    println!("Could not parse response: {}", e);
+                    error!("Could not parse response: {}", e);
                     exit(1)
                 }
             },
             Err(e) => {
-                println!("Something went terrible wrong! Error: {}", e);
+                error!("Something went terrible wrong! Error: {}", e);
                 exit(1)
             }
         }
