@@ -63,7 +63,8 @@ async fn main() {
             exit(1)
         }
     };
-    println!("Current IP: {current_ip}");
+
+    info!("Current IP: {current_ip}");
 
     for arg in args.host.iter() {
         info!("Host: {arg}");
