@@ -1,11 +1,21 @@
 use clap::Parser;
 use reqwest;
-use std::{env, process::exit};
+use serde::{Deserialize, Serialize};
+use std::{fs, process::exit};
 
 const YDNS_BASE_URL: &str = "https://ydns.io/api/v1";
 
+#[derive(Serialize, Deserialize, Debug)]
+struct Config {
+    username: String,
+    password: String,
+}
+
 #[derive(Parser, Debug)]
 struct Args {
+    #[arg(long, short, default_value = "ydns.yaml")]
+    file: String,
+
     #[arg(required = true, long, short = 'H')]
     host: Vec<String>,
 }
@@ -14,8 +24,24 @@ struct Args {
 async fn main() {
     let args = Args::parse();
 
-    let ydns_username = read_env_or_exit("YDNS_USERNAME");
-    let ydns_password = read_env_or_exit("YDNS_PASSWORD");
+    let file_content = match fs::read_to_string(&args.file) {
+        Ok(f) => f,
+        Err(e) => {
+            println!("Couldn't read the configuration file {}: {}", &args.file, e);
+            exit(1)
+        }
+    };
+
+    let config = match serde_yaml::from_str::<Config>(&file_content) {
+        Ok(c) => c,
+        Err(e) => {
+            println!(
+                "Couldn't parse the configuration file {}: {}",
+                &args.file, e
+            );
+            exit(1)
+        }
+    };
 
     let current_ip = match get_current_ip().await {
         Ok(r) => r,
@@ -28,7 +54,7 @@ async fn main() {
 
     for arg in args.host.iter() {
         println!("Host: {arg}");
-        match update_host(&ydns_username, &ydns_password, &arg, &current_ip).await {
+        match update_host(&config.username, &config.password, &arg, &current_ip).await {
             Ok(response) => match response.text().await {
                 Ok(r) => println!("Result: {}", r),
                 Err(e) => {
@@ -40,16 +66,6 @@ async fn main() {
                 println!("Something went terrible wrong! Error: {}", e);
                 exit(1)
             }
-        }
-    }
-}
-
-fn read_env_or_exit(name: &str) -> String {
-    match env::var(name) {
-        Ok(env) => env,
-        Err(_) => {
-            println!("Environment variable {} doesn't exist", name);
-            exit(1)
         }
     }
 }
