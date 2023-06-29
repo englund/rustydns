@@ -44,11 +44,7 @@ async fn main() {
         WriteLogger::new(
             LevelFilter::Warn,
             SimplelogConfig::default(),
-            OpenOptions::new()
-                .write(true)
-                .append(true)
-                .open(&args.logfile)
-                .unwrap(),
+            OpenOptions::new().append(true).open(&args.logfile).unwrap(),
         ),
     ])
     .unwrap();
