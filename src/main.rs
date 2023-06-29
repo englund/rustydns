@@ -2,27 +2,29 @@ use clap::Parser;
 use log::{error, info, LevelFilter};
 use reqwest;
 use serde::{Deserialize, Serialize};
-use simplelog::{ColorChoice, CombinedLogger, TermLogger, TerminalMode, WriteLogger};
+use simplelog::{
+    ColorChoice, CombinedLogger, Config as SimplelogConfig, TermLogger, TerminalMode, WriteLogger,
+};
 use std::{
-    fs::{self, File},
+    fs::{self, OpenOptions},
     process::exit,
 };
 
 const YDNS_BASE_URL: &str = "https://ydns.io/api/v1";
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Config {
+struct YdnsConfig {
     username: String,
     password: String,
 }
 
 #[derive(Parser, Debug)]
-struct Args {
-    #[arg(long, short, default_value = "ydns.yaml")]
-    file: String,
-
+struct CliArgs {
     #[arg(required = true, long, short = 'H')]
     host: Vec<String>,
+
+    #[arg(long, short, default_value = "ydns.yaml")]
+    file: String,
 
     #[arg(long, short, default_value = "ydns-updater.log")]
     logfile: String,
@@ -30,19 +32,23 @@ struct Args {
 
 #[tokio::main]
 async fn main() {
-    let args = Args::parse();
+    let args = CliArgs::parse();
 
     CombinedLogger::init(vec![
         TermLogger::new(
             LevelFilter::Info,
-            simplelog::Config::default(),
+            SimplelogConfig::default(),
             TerminalMode::Mixed,
             ColorChoice::Auto,
         ),
         WriteLogger::new(
             LevelFilter::Warn,
-            simplelog::Config::default(),
-            File::create(&args.logfile).unwrap(),
+            SimplelogConfig::default(),
+            OpenOptions::new()
+                .write(true)
+                .append(true)
+                .open(&args.logfile)
+                .unwrap(),
         ),
     ])
     .unwrap();
@@ -55,7 +61,7 @@ async fn main() {
         }
     };
 
-    let config = match serde_yaml::from_str::<Config>(&file_content) {
+    let config = match serde_yaml::from_str::<YdnsConfig>(&file_content) {
         Ok(c) => c,
         Err(e) => {
             error!(
