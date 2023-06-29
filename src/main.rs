@@ -1,8 +1,12 @@
 use clap::Parser;
-use log::{error, info};
+use log::{error, info, LevelFilter};
 use reqwest;
 use serde::{Deserialize, Serialize};
-use std::{fs, process::exit};
+use simplelog::{ColorChoice, CombinedLogger, TermLogger, TerminalMode, WriteLogger};
+use std::{
+    fs::{self, File},
+    process::exit,
+};
 
 const YDNS_BASE_URL: &str = "https://ydns.io/api/v1";
 
@@ -19,13 +23,29 @@ struct Args {
 
     #[arg(required = true, long, short = 'H')]
     host: Vec<String>,
+
+    #[arg(long, short, default_value = "ydns-updater.log")]
+    logfile: String,
 }
 
 #[tokio::main]
 async fn main() {
-    env_logger::init();
-
     let args = Args::parse();
+
+    CombinedLogger::init(vec![
+        TermLogger::new(
+            LevelFilter::Info,
+            simplelog::Config::default(),
+            TerminalMode::Mixed,
+            ColorChoice::Auto,
+        ),
+        WriteLogger::new(
+            LevelFilter::Warn,
+            simplelog::Config::default(),
+            File::create(&args.logfile).unwrap(),
+        ),
+    ])
+    .unwrap();
 
     let file_content = match fs::read_to_string(&args.file) {
         Ok(f) => f,
