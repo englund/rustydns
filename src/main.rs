@@ -1,22 +1,14 @@
 use clap::Parser;
 use log::{error, info, LevelFilter};
-use serde::{Deserialize, Serialize};
 use simplelog::{
     ColorChoice, CombinedLogger, Config as SimplelogConfig, SharedLogger, TermLogger, TerminalMode,
     WriteLogger,
 };
-use std::{
-    fs::{self, OpenOptions},
-    process::exit,
-};
+use std::{fs::OpenOptions, process::exit};
+
+mod config;
 
 use ydns_updater::{get_current_ip, update_host};
-
-#[derive(Serialize, Deserialize, Debug)]
-struct YdnsConfig {
-    username: String,
-    password: String,
-}
 
 #[derive(Parser, Debug)]
 struct CliArgs {
@@ -54,8 +46,8 @@ async fn main() {
     }
     CombinedLogger::init(loggers).unwrap();
 
-    let file_content = match fs::read_to_string(&args.config) {
-        Ok(f) => f,
+    let config = match config::setup(&args.config) {
+        Ok(c) => c,
         Err(e) => {
             error!(
                 "Couldn't read the configuration file {}: {}",
@@ -65,24 +57,8 @@ async fn main() {
         }
     };
 
-    let config = match serde_yaml::from_str::<YdnsConfig>(&file_content) {
-        Ok(c) => c,
-        Err(e) => {
-            error!(
-                "Couldn't parse the configuration file {}: {}",
-                &args.config, e
-            );
-            exit(1)
-        }
-    };
-
-    if config.username.is_empty() {
-        error!("The username needs to be configured");
-        exit(1)
-    }
-
-    if config.password.is_empty() {
-        error!("The password needs to be configured");
+    if let Err(e) = config::validate(&config) {
+        error!("Invalid configuration: {}", e);
         exit(1)
     }
 
