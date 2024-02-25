@@ -42,35 +42,18 @@ async fn main() {
         exit(1)
     }
 
-    let current_ip = match get_current_ip().await {
-        Ok(r) => r,
-        Err(_) => {
-            error!("Couldn't find current IP");
-            exit(1)
-        }
-    };
+    let current_ip = get_current_ip().await.unwrap_or_else(|e| {
+        error!("{}", e);
+        exit(1)
+    });
 
     info!("Current IP: {current_ip}");
 
-    for arg in args.host.iter() {
-        info!("Host: {arg}");
-        match update_host(&config.username, &config.password, &arg, &current_ip).await {
-            Ok(response) => match response.text().await {
-                Ok(r) => {
-                    if !r.contains("ok") {
-                        error!("Something went wrong updating the host: {}", r);
-                        exit(1)
-                    }
-                }
-                Err(e) => {
-                    error!("Couldn't parse response: {}", e);
-                    exit(1)
-                }
-            },
-            Err(e) => {
-                error!("Something went terrible wrong! Error: {}", e);
-                exit(1)
-            }
+    for host in args.host.iter() {
+        info!("Host: {host}");
+        if let Err(e) = update_host(&config.username, &config.password, &host, &current_ip).await {
+            error!("Could not update host {}: {}", host, e);
+            exit(1)
         }
     }
 }
