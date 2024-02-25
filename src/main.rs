@@ -1,12 +1,10 @@
 use clap::Parser;
-use log::{error, info, LevelFilter};
-use simplelog::{
-    ColorChoice, CombinedLogger, Config as SimplelogConfig, SharedLogger, TermLogger, TerminalMode,
-    WriteLogger,
-};
-use std::{fs::OpenOptions, process::exit};
+use log::error;
+use log::info;
+use std::process::exit;
 
 mod config;
+mod logging;
 
 use ydns_updater::{get_current_ip, update_host};
 
@@ -26,25 +24,7 @@ struct CliArgs {
 async fn main() {
     let args = CliArgs::parse();
 
-    let mut loggers: Vec<Box<dyn SharedLogger>> = vec![TermLogger::new(
-        LevelFilter::Info,
-        SimplelogConfig::default(),
-        TerminalMode::Mixed,
-        ColorChoice::Auto,
-    )];
-    if !args.logfile.is_empty() {
-        let logfile = WriteLogger::new(
-            LevelFilter::Warn,
-            SimplelogConfig::default(),
-            OpenOptions::new()
-                .create_new(true)
-                .append(true)
-                .open(&args.logfile)
-                .unwrap(),
-        );
-        loggers.push(logfile);
-    }
-    CombinedLogger::init(loggers).unwrap();
+    logging::setup(&args.logfile);
 
     let config = match config::setup(&args.config) {
         Ok(c) => c,
