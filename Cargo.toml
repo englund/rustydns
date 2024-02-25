@@ -4,7 +4,7 @@ version = "0.3.2"
 edition = "2021"
 authors = ["Victor Englund"]
 description = "An YDNS updater"
-repository = "https://github.com/englund/ydns-updater"
+repository = "https://github.com/englund/rusty-ydns"
 
 [dependencies]
 clap = { version = "4.3.8", features = ["derive"] }
