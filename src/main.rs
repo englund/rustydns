@@ -9,20 +9,24 @@ mod logging;
 use ydns_updater::{get_current_ip, update_host};
 
 #[derive(Parser, Debug)]
-struct CliArgs {
+#[command(version, about, long_about = None)]
+struct Cli {
+    /// The host(s) to update
     #[arg(required = true, long, short = 'H')]
     host: Vec<String>,
 
+    /// The configuration file
     #[arg(long, short, default_value = "ydns.yaml")]
     config: String,
 
+    /// Optional log file
     #[arg(long, short, default_value = "")]
     logfile: String,
 }
 
 #[tokio::main]
 async fn main() {
-    let args = CliArgs::parse();
+    let args = Cli::parse();
 
     logging::setup(&args.logfile);
 
