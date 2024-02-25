@@ -2,14 +2,8 @@ use std::error::Error;
 
 use reqwest;
 
-const YDNS_BASE_URL: &str = "https://ydns.io/api/v1";
-
-pub async fn get_current_ip() -> Result<String, Box<dyn Error>> {
-    match reqwest::get(format!("{YDNS_BASE_URL}/ip"))
-        .await?
-        .text()
-        .await
-    {
+pub async fn get_current_ip(base_url: &str) -> Result<String, Box<dyn Error>> {
+    match reqwest::get(format!("{base_url}/ip")).await?.text().await {
         Ok(r) => Ok(r),
         Err(_) => {
             return Err("Couldn't find current IP".into());
@@ -18,6 +12,7 @@ pub async fn get_current_ip() -> Result<String, Box<dyn Error>> {
 }
 
 pub async fn update_host(
+    base_url: &str,
     username: &str,
     password: &str,
     host: &str,
@@ -25,7 +20,7 @@ pub async fn update_host(
 ) -> Result<String, Box<dyn Error>> {
     let client = reqwest::Client::new();
     match client
-        .get(format!("{YDNS_BASE_URL}/update/?host={host}&ip={ip}"))
+        .get(format!("{base_url}/update/?host={host}&ip={ip}"))
         .basic_auth(username, Some(password))
         .send()
         .await

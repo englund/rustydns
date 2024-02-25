@@ -43,7 +43,7 @@ async fn main() {
         exit(1)
     }
 
-    let current_ip = get_current_ip().await.unwrap_or_else(|e| {
+    let current_ip = get_current_ip(&config.base_url).await.unwrap_or_else(|e| {
         error!("{}", e);
         exit(1)
     });
@@ -52,7 +52,15 @@ async fn main() {
 
     for host in args.host.iter() {
         info!("Host: {host}");
-        if let Err(e) = update_host(&config.username, &config.password, &host, &current_ip).await {
+        if let Err(e) = update_host(
+            &config.base_url,
+            &config.username,
+            &config.password,
+            &host,
+            &current_ip,
+        )
+        .await
+        {
             error!("Could not update host {}: {}", host, e);
             exit(1)
         }

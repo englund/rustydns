@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct YdnsConfig {
+    pub base_url: String,
     pub username: String,
     pub password: String,
 }
