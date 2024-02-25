@@ -26,16 +26,13 @@ async fn main() {
 
     logging::setup(&args.logfile);
 
-    let config = match config::setup(&args.config) {
-        Ok(c) => c,
-        Err(e) => {
-            error!(
-                "Couldn't read the configuration file {}: {}",
-                &args.config, e
-            );
-            exit(1)
-        }
-    };
+    let config = config::setup(&args.config).unwrap_or_else(|e| {
+        error!(
+            "Couldn't read the configuration file {}: {}",
+            &args.config, e
+        );
+        exit(1)
+    });
 
     if let Err(e) = config::validate(&config) {
         error!("Invalid configuration: {}", e);
