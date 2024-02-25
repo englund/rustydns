@@ -24,7 +24,7 @@ struct CliArgs {
     host: Vec<String>,
 
     #[arg(long, short, default_value = "ydns.yaml")]
-    file: String,
+    config: String,
 
     #[arg(long, short, default_value = "")]
     logfile: String,
@@ -54,10 +54,13 @@ async fn main() {
     }
     CombinedLogger::init(loggers).unwrap();
 
-    let file_content = match fs::read_to_string(&args.file) {
+    let file_content = match fs::read_to_string(&args.config) {
         Ok(f) => f,
         Err(e) => {
-            error!("Couldn't read the configuration file {}: {}", &args.file, e);
+            error!(
+                "Couldn't read the configuration file {}: {}",
+                &args.config, e
+            );
             exit(1)
         }
     };
@@ -67,7 +70,7 @@ async fn main() {
         Err(e) => {
             error!(
                 "Couldn't parse the configuration file {}: {}",
-                &args.file, e
+                &args.config, e
             );
             exit(1)
         }
