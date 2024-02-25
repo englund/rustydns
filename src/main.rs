@@ -2,7 +2,8 @@ use clap::Parser;
 use log::{error, info, LevelFilter};
 use serde::{Deserialize, Serialize};
 use simplelog::{
-    ColorChoice, CombinedLogger, Config as SimplelogConfig, TermLogger, TerminalMode, WriteLogger,
+    ColorChoice, CombinedLogger, Config as SimplelogConfig, SharedLogger, TermLogger, TerminalMode,
+    WriteLogger,
 };
 use std::{
     fs::{self, OpenOptions},
@@ -25,7 +26,7 @@ struct CliArgs {
     #[arg(long, short, default_value = "ydns.yaml")]
     file: String,
 
-    #[arg(long, short, default_value = "ydns-updater.log")]
+    #[arg(long, short, default_value = "")]
     logfile: String,
 }
 
@@ -33,20 +34,25 @@ struct CliArgs {
 async fn main() {
     let args = CliArgs::parse();
 
-    CombinedLogger::init(vec![
-        TermLogger::new(
-            LevelFilter::Info,
-            SimplelogConfig::default(),
-            TerminalMode::Mixed,
-            ColorChoice::Auto,
-        ),
-        WriteLogger::new(
+    let mut loggers: Vec<Box<dyn SharedLogger>> = vec![TermLogger::new(
+        LevelFilter::Info,
+        SimplelogConfig::default(),
+        TerminalMode::Mixed,
+        ColorChoice::Auto,
+    )];
+    if !args.logfile.is_empty() {
+        let logfile = WriteLogger::new(
             LevelFilter::Warn,
             SimplelogConfig::default(),
-            OpenOptions::new().append(true).open(&args.logfile).unwrap(),
-        ),
-    ])
-    .unwrap();
+            OpenOptions::new()
+                .create_new(true)
+                .append(true)
+                .open(&args.logfile)
+                .unwrap(),
+        );
+        loggers.push(logfile);
+    }
+    CombinedLogger::init(loggers).unwrap();
 
     let file_content = match fs::read_to_string(&args.file) {
         Ok(f) => f,
