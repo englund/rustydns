@@ -30,23 +30,29 @@ async fn main() {
 
     logging::setup(&args.logfile);
 
-    let config = config::setup(&args.config).unwrap_or_else(|e| {
-        error!(
-            "Couldn't read the configuration file {}: {}",
-            &args.config, e
-        );
-        exit(1)
-    });
+    let config = match config::setup(&args.config) {
+        Ok(c) => c,
+        Err(e) => {
+            error!(
+                "Could not read the configuration file {}: {}",
+                &args.config, e
+            );
+            exit(1)
+        }
+    };
 
     if let Err(e) = config::validate(&config) {
         error!("Invalid configuration: {}", e);
         exit(1)
     }
 
-    let current_ip = get_current_ip(&config.base_url).await.unwrap_or_else(|e| {
-        error!("{}", e);
-        exit(1)
-    });
+    let current_ip = match get_current_ip(&config.base_url).await {
+        Ok(ip) => ip,
+        Err(e) => {
+            error!("Could not get current IP: {}", e);
+            exit(1)
+        }
+    };
 
     info!("Current IP: {current_ip}");
 
