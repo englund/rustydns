@@ -1,6 +1,5 @@
 use clap::{Parser, Subcommand};
-use log::error;
-use log::info;
+use log::{error, info};
 use std::path::PathBuf;
 use std::process::exit;
 
