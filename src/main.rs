@@ -1,6 +1,7 @@
 use clap::{Parser, Subcommand};
 use log::error;
 use log::info;
+use std::path::PathBuf;
 use std::process::exit;
 
 use ydns_updater::{get_current_ip, update_host};
@@ -39,15 +40,15 @@ struct GlobalOpts {
     config: String,
 
     /// Optional log file
-    #[arg(long, short, default_value = "")]
-    logfile: String,
+    #[arg(long, short)]
+    logfile: Option<PathBuf>,
 }
 
 #[tokio::main]
 async fn main() {
     let args = App::parse();
 
-    logging::setup(&args.global_opts.logfile);
+    logging::setup(args.global_opts.logfile);
 
     let config = match config::setup(&args.global_opts.config) {
         Ok(c) => c,
