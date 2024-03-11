@@ -74,7 +74,7 @@ async fn main() {
 async fn get_ip(config: &config::YdnsConfig) {
     match get_current_ip(&config.base_url).await {
         Ok(ip) => {
-            info!("Current IP: {ip}");
+            info!("{ip}");
         }
         Err(e) => {
             error!("Could not get current IP: {}", e);
