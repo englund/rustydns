@@ -1,20 +1,39 @@
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use log::error;
 use log::info;
 use std::process::exit;
 
+use ydns_updater::{get_current_ip, update_host};
+
 mod config;
 mod logging;
 
-use ydns_updater::{get_current_ip, update_host};
+#[derive(Debug, Parser)]
+#[clap(version)]
+pub struct App {
+    #[clap(flatten)]
+    global_opts: GlobalOpts,
+
+    #[clap(subcommand)]
+    command: Command,
+}
+
+#[derive(Debug, Subcommand)]
+enum Command {
+    /// Get current ip.
+    Ip,
+
+    /// Update host(s) with current ip.
+    Update {
+        /// The host(s) to update
+        #[arg(required = true, long, short = 'H')]
+        host: Vec<String>,
+    },
+}
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
-struct Cli {
-    /// The host(s) to update
-    #[arg(required = true, long, short = 'H')]
-    host: Vec<String>,
-
+struct GlobalOpts {
     /// The configuration file
     #[arg(long, short, default_value = "ydns.yaml")]
     config: String,
@@ -26,26 +45,45 @@ struct Cli {
 
 #[tokio::main]
 async fn main() {
-    let args = Cli::parse();
+    let args = App::parse();
 
-    logging::setup(&args.logfile);
+    logging::setup(&args.global_opts.logfile);
 
-    let config = match config::setup(&args.config) {
+    let config = match config::setup(&args.global_opts.config) {
         Ok(c) => c,
         Err(e) => {
             error!(
                 "Could not read the configuration file {}: {}",
-                &args.config, e
+                &args.global_opts.config, e
             );
             exit(1)
         }
     };
 
+    match args.command {
+        Command::Ip => get_ip(&config).await,
+        Command::Update { host } => update(&config, host).await,
+    }
+
     if let Err(e) = config::validate(&config) {
         error!("Invalid configuration: {}", e);
         exit(1)
     }
+}
 
+async fn get_ip(config: &config::YdnsConfig) {
+    match get_current_ip(&config.base_url).await {
+        Ok(ip) => {
+            info!("Current IP: {ip}");
+        }
+        Err(e) => {
+            error!("Could not get current IP: {}", e);
+            exit(1)
+        }
+    };
+}
+
+async fn update(config: &config::YdnsConfig, host: Vec<String>) {
     let current_ip = match get_current_ip(&config.base_url).await {
         Ok(ip) => ip,
         Err(e) => {
@@ -56,7 +94,7 @@ async fn main() {
 
     info!("Current IP: {current_ip}");
 
-    for host in args.host.iter() {
+    for host in host.iter() {
         info!("Host: {host}");
         if let Err(e) = update_host(
             &config.base_url,
