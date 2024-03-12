@@ -60,14 +60,14 @@ async fn main() {
         }
     };
 
-    match args.command {
-        Command::Ip => get_ip(&config).await,
-        Command::Update { host } => update(&config, host).await,
-    }
-
     if let Err(e) = config::validate(&config) {
         error!("Invalid configuration: {}", e);
         exit(1)
+    }
+
+    match args.command {
+        Command::Ip => get_ip(&config).await,
+        Command::Update { host } => update(&config, host).await,
     }
 }
 
