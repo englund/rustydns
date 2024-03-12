@@ -1,6 +1,6 @@
 include .env
 
-BINARY = ydns-updater
+BINARY = ydns
 
 PWD = $(shell pwd)
 BIN_DIR= $(PWD)/target

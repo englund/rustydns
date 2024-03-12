@@ -1,5 +1,5 @@
 [package]
-name = "ydns-updater"
+name = "ydns"
 version = "0.3.2"
 edition = "2021"
 authors = ["Victor Englund"]

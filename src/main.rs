@@ -3,7 +3,7 @@ use log::{error, info};
 use std::path::PathBuf;
 use std::process::exit;
 
-use ydns_updater::{get_current_ip, update_host};
+use ydns::{get_current_ip, update_host};
 
 mod config;
 mod logging;
