@@ -46,7 +46,10 @@ struct GlobalOpts {
 async fn main() {
     let cli = Cli::parse();
 
-    logging::setup(cli.global_opts.logfile);
+    if let Err(e) = logging::setup(&cli.global_opts) {
+        error!("Could not setup logging: {}", e);
+        exit(1)
+    }
 
     let config = match config::load_and_validate(&cli.global_opts.config) {
         Ok(c) => c,
