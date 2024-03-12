@@ -10,7 +10,7 @@ mod logging;
 
 #[derive(Debug, Parser)]
 #[clap(version)]
-pub struct App {
+pub struct Cli {
     #[clap(flatten)]
     global_opts: GlobalOpts,
 
@@ -45,22 +45,22 @@ struct GlobalOpts {
 
 #[tokio::main]
 async fn main() {
-    let args = App::parse();
+    let cli = Cli::parse();
 
-    logging::setup(args.global_opts.logfile);
+    logging::setup(cli.global_opts.logfile);
 
-    let config = match config::load_and_validate(&args.global_opts.config) {
+    let config = match config::load_and_validate(&cli.global_opts.config) {
         Ok(c) => c,
         Err(e) => {
             error!(
                 "Could not read the configuration file {}: {}",
-                &args.global_opts.config, e
+                &cli.global_opts.config, e
             );
             exit(1)
         }
     };
 
-    match args.command {
+    match cli.command {
         Command::Ip => get_ip(&config).await,
         Command::Update { host } => update(&config, host).await,
     }
