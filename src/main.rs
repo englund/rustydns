@@ -49,7 +49,7 @@ async fn main() {
 
     logging::setup(args.global_opts.logfile);
 
-    let config = match config::setup_and_validate(&args.global_opts.config) {
+    let config = match config::load_and_validate(&args.global_opts.config) {
         Ok(c) => c,
         Err(e) => {
             error!(

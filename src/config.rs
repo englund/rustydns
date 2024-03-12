@@ -9,8 +9,8 @@ pub(crate) struct YdnsConfig {
     pub password: String,
 }
 
-pub fn setup_and_validate(config_file: &str) -> Result<YdnsConfig, Box<dyn Error>> {
-    let config = setup(config_file)?;
+pub fn load_and_validate(config_file: &str) -> Result<YdnsConfig, Box<dyn Error>> {
+    let config = load(config_file)?;
     if let Err(e) = validate(&config) {
         return Err(format!("Invalid configuration: {}", e).into());
     }
@@ -18,7 +18,7 @@ pub fn setup_and_validate(config_file: &str) -> Result<YdnsConfig, Box<dyn Error
     Ok(config)
 }
 
-fn setup(config_file: &str) -> Result<YdnsConfig, Box<dyn Error>> {
+fn load(config_file: &str) -> Result<YdnsConfig, Box<dyn Error>> {
     let file_content = fs::read_to_string(&config_file)?;
     let config = serde_yaml::from_str::<YdnsConfig>(&file_content)?;
 
