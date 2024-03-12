@@ -49,7 +49,7 @@ async fn main() {
 
     logging::setup(args.global_opts.logfile);
 
-    let config = match config::setup(&args.global_opts.config) {
+    let config = match config::setup_and_validate(&args.global_opts.config) {
         Ok(c) => c,
         Err(e) => {
             error!(
@@ -59,11 +59,6 @@ async fn main() {
             exit(1)
         }
     };
-
-    if let Err(e) = config::validate(&config) {
-        error!("Invalid configuration: {}", e);
-        exit(1)
-    }
 
     match args.command {
         Command::Ip => get_ip(&config).await,
