@@ -8,7 +8,7 @@ use ydns::{
 
 use crate::config;
 
-pub async fn run(
+pub(crate) async fn run(
     config: &config::YdnsConfig,
     host: Vec<String>,
     last_ip_file: &PathBuf,

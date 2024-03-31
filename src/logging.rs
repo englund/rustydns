@@ -7,7 +7,7 @@ use std::{error::Error, fs::OpenOptions};
 
 use crate::GlobalOpts;
 
-pub fn setup(opts: &GlobalOpts) -> Result<(), Box<dyn Error>> {
+pub(crate) fn setup(opts: &GlobalOpts) -> Result<(), Box<dyn Error>> {
     let mut loggers: Vec<Box<dyn SharedLogger>> = vec![TermLogger::new(
         LevelFilter::Info,
         SimplelogConfig::default(),

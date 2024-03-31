@@ -9,7 +9,7 @@ pub(crate) struct YdnsConfig {
     pub password: String,
 }
 
-pub fn load_and_validate(config_file: &str) -> Result<YdnsConfig, Box<dyn Error>> {
+pub(crate) fn load_and_validate(config_file: &str) -> Result<YdnsConfig, Box<dyn Error>> {
     let config = load(config_file)?;
     if let Err(e) = validate(&config) {
         return Err(format!("Invalid configuration: {}", e).into());
