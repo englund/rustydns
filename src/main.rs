@@ -27,6 +27,14 @@ enum Command {
         /// The host(s) to update
         #[arg(required = true, long, short = 'H')]
         host: Vec<String>,
+
+        /// Last IP file
+        #[arg(long, default_value = "/tmp/ydns_last_ip")]
+        last_ip_file: PathBuf,
+
+        /// Force update
+        #[arg(action, long, short = 'f')]
+        force: bool,
     },
 }
 
@@ -64,6 +72,10 @@ async fn main() {
 
     match cli.command {
         Command::Ip => commands::get_ip(&config).await,
-        Command::Update { host } => commands::update(&config, host).await,
+        Command::Update {
+            host,
+            last_ip_file,
+            force,
+        } => commands::update(&config, host, &last_ip_file, force).await,
     }
 }
