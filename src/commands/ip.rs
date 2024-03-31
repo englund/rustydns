@@ -1,7 +1,7 @@
 use log::{error, info};
 use std::process::exit;
 
-use ydns::get_current_ip;
+use ydns::ydns_client::get_current_ip;
 
 use crate::config;
 

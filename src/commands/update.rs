@@ -1,7 +1,10 @@
 use log::{error, info};
 use std::{path::PathBuf, process::exit};
 
-use ydns::{get_current_ip, get_ip_from_file, update_host, write_ip_to_file};
+use ydns::{
+    file_utils::{get_ip_from_file, write_ip_to_file},
+    ydns_client::{get_current_ip, update_host},
+};
 
 use crate::config;
 
