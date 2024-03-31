@@ -27,8 +27,8 @@ pub async fn update_host(
     {
         Ok(response) => match response.text().await {
             Ok(r) => {
-                if !r.contains("ok") {
-                    return Err(format!("Something went wrong updating the host: {}", r).into());
+                if !r.contains("ok") || !r.contains("nochg") {
+                    return Err(format!("Unexpected response: {}", r).into());
                 }
                 return Ok(r);
             }
