@@ -71,11 +71,11 @@ async fn main() {
     };
 
     match cli.command {
-        Command::Ip => commands::get_ip(&config).await,
+        Command::Ip => commands::ip::run(&config).await,
         Command::Update {
             host,
             last_ip_file,
             force,
-        } => commands::update(&config, host, &last_ip_file, force).await,
+        } => commands::update::run(&config, host, &last_ip_file, force).await,
     }
 }

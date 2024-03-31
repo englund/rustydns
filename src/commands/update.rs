@@ -5,19 +5,7 @@ use ydns::{get_current_ip, get_ip_from_file, update_host, write_ip_to_file};
 
 use crate::config;
 
-pub(crate) async fn get_ip(config: &config::YdnsConfig) {
-    match get_current_ip(&config.base_url).await {
-        Ok(ip) => {
-            info!("{ip}");
-        }
-        Err(e) => {
-            error!("Could not get current IP: {}", e);
-            exit(1)
-        }
-    };
-}
-
-pub(crate) async fn update(
+pub async fn run(
     config: &config::YdnsConfig,
     host: Vec<String>,
     last_ip_file: &PathBuf,
