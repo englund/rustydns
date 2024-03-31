@@ -3,7 +3,7 @@ use std::{error::Error, path::PathBuf};
 use reqwest;
 
 pub async fn get_current_ip(base_url: &str) -> Result<String, Box<dyn Error>> {
-    match reqwest::get(format!("{base_url}/ip")).await?.text().await {
+    match reqwest::get(format!("{}/ip", base_url)).await?.text().await {
         Ok(r) => Ok(r),
         Err(_) => {
             return Err("Couldn't find current IP".into());
@@ -20,7 +20,7 @@ pub async fn update_host(
 ) -> Result<String, Box<dyn Error>> {
     let client = reqwest::Client::new();
     match client
-        .get(format!("{base_url}/update/?host={host}&ip={ip}"))
+        .get(format!("{}/update/?host={}&ip={}", base_url, host, ip))
         .basic_auth(username, Some(password))
         .send()
         .await
