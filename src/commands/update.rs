@@ -1,4 +1,3 @@
-use log::{error, info};
 use std::{path::PathBuf, process::exit};
 
 use ydns::{
@@ -17,7 +16,7 @@ pub(crate) async fn run(
     let current_ip = match get_current_ip(&config.base_url).await {
         Ok(ip) => ip,
         Err(e) => {
-            error!("Could not get current IP: {}", e);
+            eprintln!("Could not get current IP: {}", e);
             exit(1)
         }
     };
@@ -25,21 +24,21 @@ pub(crate) async fn run(
     let last_ip = match get_ip_from_file(&last_ip_file) {
         Ok(ip) => ip,
         Err(e) => {
-            error!("Could not get IP from file: {}", e);
+            eprintln!("Could not get IP from file: {}", e);
             exit(1)
         }
     };
 
-    info!("Last IP: {last_ip}");
-    info!("Current IP: {current_ip}");
+    println!("Last IP: {last_ip}");
+    println!("Current IP: {current_ip}");
 
     if last_ip == current_ip && !force {
-        info!("IP has not changed, exiting");
+        println!("IP has not changed, exiting");
         exit(0)
     }
 
     for host in host.iter() {
-        info!("Host: {host}");
+        println!("Host: {host}");
         if let Err(e) = update_host(
             &config.base_url,
             &config.username,
@@ -49,13 +48,13 @@ pub(crate) async fn run(
         )
         .await
         {
-            error!("Could not update host {}: {}", host, e);
+            eprintln!("Could not update host {}: {}", host, e);
             exit(1)
         }
     }
 
     if let Err(e) = write_ip_to_file(&last_ip_file, &current_ip) {
-        error!("Could not write IP to file: {}", e);
+        eprintln!("Could not write IP to file: {}", e);
         exit(1)
     }
 }
