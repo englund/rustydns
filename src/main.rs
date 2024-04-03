@@ -39,7 +39,7 @@ enum Command {
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct GlobalOpts {
-    /// The configuration file
+    /// The configuration file(s)
     #[arg(long, short, default_values = ["ydns.yaml", "/etc/ydns/ydns.yaml"])]
     config: Vec<PathBuf>,
 }
