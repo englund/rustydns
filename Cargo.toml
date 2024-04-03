@@ -14,3 +14,4 @@ serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
 mockito = "1.4.0"
 base64 = "0.22.0"
+confique = "0.2.5"

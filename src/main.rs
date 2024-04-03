@@ -48,13 +48,10 @@ struct GlobalOpts {
 async fn main() {
     let cli = Cli::parse();
 
-    let config = match config::load_and_validate(&cli.global_opts.config) {
+    let config = match config::load(&cli.global_opts.config) {
         Ok(c) => c,
         Err(e) => {
-            eprintln!(
-                "Could not read the configuration file {}: {}",
-                &cli.global_opts.config, e
-            );
+            eprintln!("Could not read the configuration: {}", e);
             exit(1)
         }
     };
