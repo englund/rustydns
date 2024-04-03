@@ -30,7 +30,6 @@ pub(crate) async fn run(
     };
 
     if last_ip == current_ip && !force {
-        println!("IP has not changed, exiting");
         exit(0)
     }
 
