@@ -29,16 +29,12 @@ pub(crate) async fn run(
         }
     };
 
-    println!("Last IP: {last_ip}");
-    println!("Current IP: {current_ip}");
-
     if last_ip == current_ip && !force {
         println!("IP has not changed, exiting");
         exit(0)
     }
 
     for host in host.iter() {
-        println!("Host: {host}");
         if let Err(e) = update_host(
             &config.base_url,
             &config.username,
@@ -57,4 +53,6 @@ pub(crate) async fn run(
         eprintln!("Could not write IP to file: {}", e);
         exit(1)
     }
+
+    println!("Successfully updated hosts with new IP address: {current_ip}");
 }
