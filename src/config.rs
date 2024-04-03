@@ -1,4 +1,4 @@
-use std::error::Error;
+use std::{error::Error, path::PathBuf};
 
 use confique::Config;
 
@@ -9,11 +9,11 @@ pub(crate) struct YdnsConfig {
     pub password: String,
 }
 
-pub(crate) fn load(config_file: &str) -> Result<YdnsConfig, Box<dyn Error>> {
-    let config = Config::builder()
-        .file(config_file)
-        .file("/etc/ydns/ydns.yaml")
-        .load()?;
+pub(crate) fn load(config_file: &Vec<PathBuf>) -> Result<YdnsConfig, Box<dyn Error>> {
+    let mut builder = Config::builder();
+    for file in config_file {
+        builder = builder.file(file);
+    }
 
-    Ok(config)
+    Ok(builder.load()?)
 }

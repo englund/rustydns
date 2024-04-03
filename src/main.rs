@@ -40,8 +40,8 @@ enum Command {
 #[command(version, about, long_about = None)]
 struct GlobalOpts {
     /// The configuration file
-    #[arg(long, short, default_value = "ydns.yaml")]
-    config: String,
+    #[arg(long, short, default_values = ["ydns.yaml", "/etc/ydns/ydns.yaml"])]
+    config: Vec<PathBuf>,
 }
 
 #[tokio::main]
