@@ -37,6 +37,11 @@ enum Command {
         /// Use as daemon
         #[arg(action, long, short = 'd')]
         daemon: bool,
+
+        /// If used as daemon, wait time between updates.
+        /// Default is 900 seconds (15 minutes).
+        #[arg(long = "wait", short = 'w', default_value = "900")]
+        wait_time: u64,
     },
 }
 
@@ -67,6 +72,7 @@ async fn main() {
             last_ip_file,
             force,
             daemon,
-        } => commands::update::run(&config, host, &last_ip_file, force, daemon).await,
+            wait_time,
+        } => commands::update::run(&config, host, &last_ip_file, force, daemon, wait_time).await,
     }
 }

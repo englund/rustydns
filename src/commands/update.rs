@@ -7,20 +7,19 @@ use ydns::{
 
 use crate::config;
 
-const SLEEP_DURATION: Duration = Duration::from_secs(5);
-
 pub(crate) async fn run(
     config: &config::YdnsConfig,
     host: Vec<String>,
     last_ip_file: &PathBuf,
     force: bool,
     daemon: bool,
+    wait_time: u64,
 ) {
     let mut has_run = false;
     let mut last_ip = "".to_string();
     loop {
         if has_run {
-            tokio::time::sleep(SLEEP_DURATION).await;
+            tokio::time::sleep(Duration::from_secs(wait_time)).await;
         }
 
         let current_ip = match get_current_ip(&config.base_url).await {
