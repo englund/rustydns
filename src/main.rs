@@ -22,10 +22,6 @@ enum Command {
 
     /// Update host(s) with current ip.
     Update {
-        /// The host(s) to update
-        #[arg(required = true, long, short = 'H')]
-        host: Vec<String>,
-
         /// Last IP file
         #[arg(long, default_value = "/tmp/ydns_last_ip")]
         last_ip_file: PathBuf,
@@ -37,11 +33,6 @@ enum Command {
         /// Use as daemon
         #[arg(action, long, short = 'd')]
         daemon: bool,
-
-        /// If used as daemon, wait time between updates.
-        /// Default is 900 seconds (15 minutes).
-        #[arg(long = "wait", short = 'w', default_value = "900")]
-        wait_time: u64,
     },
 }
 
@@ -68,11 +59,9 @@ async fn main() {
     match cli.command {
         Command::Ip => commands::ip::run(&config).await,
         Command::Update {
-            host,
             last_ip_file,
             force,
             daemon,
-            wait_time,
-        } => commands::update::run(&config, host, &last_ip_file, force, daemon, wait_time).await,
+        } => commands::update::run(&config, &last_ip_file, force, daemon).await,
     }
 }

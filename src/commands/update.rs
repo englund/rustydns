@@ -9,17 +9,15 @@ use crate::config;
 
 pub(crate) async fn run(
     config: &config::YdnsConfig,
-    host: Vec<String>,
     last_ip_file: &PathBuf,
     force: bool,
     daemon: bool,
-    wait_time: u64,
 ) {
     let mut has_run = false;
     let mut last_ip = "".to_string();
     loop {
         if has_run {
-            tokio::time::sleep(Duration::from_secs(wait_time)).await;
+            tokio::time::sleep(Duration::from_secs(config.wait_time)).await;
         }
 
         let current_ip = match get_current_ip(&config.base_url).await {
@@ -53,7 +51,7 @@ pub(crate) async fn run(
             continue;
         }
 
-        for host in host.iter() {
+        for host in config.hosts.iter() {
             if let Err(e) = update_host(
                 &config.base_url,
                 &config.username,
