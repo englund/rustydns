@@ -8,6 +8,8 @@ pub(crate) struct YdnsConfig {
     pub username: String,
     pub password: String,
     pub hosts: Vec<String>,
+
+    #[config(default = 900)]
     pub wait_time: u64,
 }
 
