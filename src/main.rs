@@ -33,6 +33,10 @@ enum Command {
         /// Force update
         #[arg(action, long, short = 'f')]
         force: bool,
+
+        /// Use as daemon
+        #[arg(action, long, short = 'd')]
+        daemon: bool,
     },
 }
 
@@ -62,6 +66,7 @@ async fn main() {
             host,
             last_ip_file,
             force,
-        } => commands::update::run(&config, host, &last_ip_file, force).await,
+            daemon,
+        } => commands::update::run(&config, host, &last_ip_file, force, daemon).await,
     }
 }
