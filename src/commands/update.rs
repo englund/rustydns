@@ -12,11 +12,15 @@ pub(crate) async fn run(
     last_ip_file: &PathBuf,
     force: bool,
     daemon: bool,
+    dry_run: bool,
 ) {
     let mut has_run = false;
     let mut last_ip = "".to_string();
     loop {
         if has_run {
+            if dry_run {
+                println!("Dry run debug: waiting for {} seconds", config.wait_time);
+            }
             tokio::time::sleep(Duration::from_secs(config.wait_time)).await;
         }
 
@@ -52,20 +56,24 @@ pub(crate) async fn run(
         }
 
         for host in config.hosts.iter() {
-            if let Err(e) = update_host(
-                &config.base_url,
-                &config.username,
-                &config.password,
-                &host,
-                &current_ip,
-            )
-            .await
-            {
-                eprintln!("Could not update host {}: {}", host, e);
-                if !daemon {
-                    exit(1)
+            if dry_run {
+                println!("Would update host {} with IP address {}", host, current_ip);
+            } else {
+                if let Err(e) = update_host(
+                    &config.base_url,
+                    &config.username,
+                    &config.password,
+                    &host,
+                    &current_ip,
+                )
+                .await
+                {
+                    eprintln!("Could not update host {}: {}", host, e);
+                    if !daemon {
+                        exit(1)
+                    }
+                    continue;
                 }
-                continue;
             }
         }
 
