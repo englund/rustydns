@@ -11,6 +11,9 @@ pub(crate) struct YdnsConfig {
 
     #[config(default = 900)]
     pub wait_time: u64,
+
+    #[config(default = false)]
+    pub daemon: bool,
 }
 
 pub(crate) fn load(config_file: &Vec<PathBuf>) -> Result<YdnsConfig, Box<dyn Error>> {

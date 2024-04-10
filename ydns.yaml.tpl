@@ -7,3 +7,4 @@ hosts:
 
 # Optionals
 #wait_time: 900 # Defaults to 900 seconds (15 minutes)
+#daemon: false # Defaults to false

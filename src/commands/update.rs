@@ -11,9 +11,9 @@ pub(crate) async fn run(
     config: &config::YdnsConfig,
     last_ip_file: &PathBuf,
     force: bool,
-    daemon: bool,
     dry_run: bool,
 ) {
+    let daemon = config.daemon;
     let mut has_run = false;
     let mut last_ip = "".to_string();
     loop {

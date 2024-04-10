@@ -30,10 +30,6 @@ enum Command {
         #[arg(action, long, short = 'f')]
         force: bool,
 
-        /// Use as daemon
-        #[arg(action, long, short = 'd')]
-        daemon: bool,
-
         /// Dry run
         #[arg(action, long = "dry-run")]
         dry_run: bool,
@@ -65,8 +61,7 @@ async fn main() {
         Command::Update {
             last_ip_file,
             force,
-            daemon,
             dry_run,
-        } => commands::update::run(&config, &last_ip_file, force, daemon, dry_run).await,
+        } => commands::update::run(&config, &last_ip_file, force, dry_run).await,
     }
 }
