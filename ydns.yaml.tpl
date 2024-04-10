@@ -1,4 +1,3 @@
-base_url: https://ydns.io/api/v1
 username:
 password:
 
@@ -6,5 +5,6 @@ hosts:
   - example.com
 
 # Optionals
-#wait_time: 900 # Defaults to 900 seconds (15 minutes)
-#daemon: false # Defaults to false
+#base_url: https://ydns.io/api/v1
+#wait_time: 900
+#daemon: false
