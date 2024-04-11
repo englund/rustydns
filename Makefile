@@ -1,5 +1,12 @@
 include .env
 
+# Required env variables:
+#SSH_USER
+#SSH_HOST
+#BIN_PATH
+#CONFIG_PATH
+#SERVICE_PATH
+
 BINARY = ydns
 SERVICE_FILE = ydns.service
 CONFIG_FILE = ydns.yaml
@@ -34,16 +41,16 @@ service-copy:
 service-deploy: service-stop service-disable service-copy service-enable service-start
 
 service-enable:
-	ssh $(SSH_USER)@$(SSH_HOST) "/etc/init.d/$(BINARY) enable"
+	ssh $(SSH_USER)@$(SSH_HOST) "${SERVICE_PATH}/$(BINARY) enable"
 
 service-disable:
-	ssh $(SSH_USER)@$(SSH_HOST) "/etc/init.d/$(BINARY) enable"
+	ssh $(SSH_USER)@$(SSH_HOST) "${SERVICE_PATH}/$(BINARY) enable"
 
 service-stop:
-	ssh $(SSH_USER)@$(SSH_HOST) "/etc/init.d/$(BINARY) stop"
+	ssh $(SSH_USER)@$(SSH_HOST) "${SERVICE_PATH}/$(BINARY) stop"
 
 service-start:
-	ssh $(SSH_USER)@$(SSH_HOST) "/etc/init.d/$(BINARY) start"
+	ssh $(SSH_USER)@$(SSH_HOST) "${SERVICE_PATH}/$(BINARY) start"
 
 deploy: service-stop cmd-copy service-deploy
 
