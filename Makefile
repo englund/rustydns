@@ -22,13 +22,29 @@ clean:
 run: build
 	cargo run
 
-deploy-cmd: build-arm64
-	scp $(TARGET_DIR)/ydns $(SSH_USER)@$(SSH_HOST):$(BIN_PATH)/$(BINARY)
+cmd-copy: build-arm64
+	scp $(TARGET_DIR)/$(BINARY) $(SSH_USER)@$(SSH_HOST):$(BIN_PATH)/$(BINARY)
 
-deploy-config:
+config-copy:
 	scp $(PWD)/$(CONFIG_FILE) $(SSH_USER)@$(SSH_HOST):$(CONFIG_PATH)/$(CONFIG_FILE)
 
-deploy-service:
+service-copy:
 	scp $(PWD)/$(SERVICE_FILE) $(SSH_USER)@$(SSH_HOST):$(SERVICE_PATH)/$(BINARY)
 
-.PHONY: build build-arm64 clean run deploy deploy-service
+service-deploy: service-stop service-disable service-copy service-enable service-start
+
+service-enable:
+	ssh $(SSH_USER)@$(SSH_HOST) "/etc/init.d/$(BINARY) enable"
+
+service-disable:
+	ssh $(SSH_USER)@$(SSH_HOST) "/etc/init.d/$(BINARY) enable"
+
+service-stop:
+	ssh $(SSH_USER)@$(SSH_HOST) "/etc/init.d/$(BINARY) stop"
+
+service-start:
+	ssh $(SSH_USER)@$(SSH_HOST) "/etc/init.d/$(BINARY) start"
+
+deploy: service-stop cmd-copy service-deploy
+
+.PHONY: build build-arm64 clean run deploy service-deploy service-enable service-disable service-stop service-start
