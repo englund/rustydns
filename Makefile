@@ -38,7 +38,7 @@ config-copy:
 service-copy:
 	scp $(PWD)/$(SERVICE_FILE) $(SSH_USER)@$(SSH_HOST):$(SERVICE_PATH)/$(BINARY)
 
-service-deploy: service-stop service-disable service-copy service-enable service-start
+service-deploy: service-stop service-disable cmd-copy service-copy service-enable service-start
 
 service-enable:
 	ssh $(SSH_USER)@$(SSH_HOST) "${SERVICE_PATH}/$(BINARY) enable"
