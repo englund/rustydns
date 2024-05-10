@@ -12,14 +12,15 @@ pub(crate) async fn run(
     last_ip_file: &PathBuf,
     force: bool,
     dry_run: bool,
+    verbose: bool,
 ) {
     let daemon = config.daemon;
     let mut has_run = false;
     let mut last_ip = "".to_string();
     loop {
         if has_run {
-            if dry_run {
-                println!("Dry run debug: waiting for {} seconds", config.wait_time);
+            if verbose {
+                println!("Waiting for {} seconds", config.wait_time);
             }
             tokio::time::sleep(Duration::from_secs(config.wait_time)).await;
         }
@@ -35,6 +36,10 @@ pub(crate) async fn run(
             }
         };
 
+        if verbose {
+            println!("Current IP address: {}", current_ip)
+        }
+
         if !daemon {
             last_ip = match get_ip_from_file(&last_ip_file) {
                 Ok(ip) => ip,
@@ -46,6 +51,9 @@ pub(crate) async fn run(
         }
 
         if last_ip == current_ip && !force {
+            if verbose {
+                println!("IP address has not changed, skipping update");
+            }
             if !daemon {
                 exit(0)
             }
@@ -56,6 +64,9 @@ pub(crate) async fn run(
             if dry_run {
                 println!("Would update host {} with IP address {}", host, current_ip);
             } else {
+                if verbose {
+                    println!("Updating host {} with IP address {}", host, current_ip);
+                }
                 if let Err(e) = update_host(
                     &config.base_url,
                     &config.username,
@@ -75,6 +86,9 @@ pub(crate) async fn run(
         }
 
         if !daemon {
+            if verbose {
+                println!("Writing IP address to file: {}", current_ip);
+            }
             if let Err(e) = write_ip_to_file(&last_ip_file, &current_ip) {
                 eprintln!("Could not write IP to file: {}", e);
                 exit(1)

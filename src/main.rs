@@ -33,6 +33,10 @@ enum Command {
         /// Dry run
         #[arg(action, long = "dry-run")]
         dry_run: bool,
+
+        /// Verbose
+        #[arg(action, long = "verbose")]
+        verbose: bool,
     },
 }
 
@@ -62,6 +66,7 @@ async fn main() {
             last_ip_file,
             force,
             dry_run,
-        } => commands::update::run(&config, &last_ip_file, force, dry_run).await,
+            verbose,
+        } => commands::update::run(&config, &last_ip_file, force, dry_run, verbose).await,
     }
 }
