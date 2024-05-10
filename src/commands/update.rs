@@ -40,10 +40,7 @@ pub(crate) async fn run(
                 Ok(ip) => ip,
                 Err(e) => {
                     eprintln!("Could not get IP from file: {}", e);
-                    if !daemon {
-                        exit(1)
-                    }
-                    continue;
+                    exit(1)
                 }
             };
         }
